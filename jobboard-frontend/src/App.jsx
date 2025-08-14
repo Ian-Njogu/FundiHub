@@ -1,34 +1,48 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Header from './components/Header'
+import Footer from './components/Footer'
+// import Home from './pages/Home'
+// import Workers from './pages/Workers'
+// import WorkerDetail from './pages/WorkerDetail'
+// import Login from './pages/Login'
+// import Dashboard from './pages/Dashboard'
+// import CreateJob from './pages/CreateJob'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user')
+    return savedUser ? JSON.parse(savedUser) : null
+  })
+
+  const login = (userData) => {
+    setUser(userData)
+    localStorage.setItem('user', JSON.stringify(userData))
+  }
+
+  const logout = () => {
+    setUser(null)
+    localStorage.removeItem('user')
+    localStorage.removeItem('accessToken')
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header user={user} onLogout={logout} />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/workers" element={<Workers />} />
+            <Route path="/workers/:id" element={<WorkerDetail />} />
+            <Route path="/login" element={<Login onLogin={login} />} />
+            <Route path="/dashboard" element={<Dashboard user={user} />} />
+            <Route path="/create-job" element={<CreateJob user={user} />} />
+          </Routes>
+        </main>
+        <Footer />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </Router>
   )
 }
 

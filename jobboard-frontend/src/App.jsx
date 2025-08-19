@@ -2,12 +2,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
-// import Home from './pages/Home'
-// import Workers from './pages/Workers'
-// import WorkerDetail from './pages/WorkerDetail'
-// import Login from './pages/Login'
-// import Dashboard from './pages/Dashboard'
-// import CreateJob from './pages/CreateJob'
+import Home from './pages/Home'
+import Workers from './pages/Workers'
+import WorkerDetail from './pages/WorkerDetail'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import CreateJob from './pages/CreateJob'
 
 function App() {
   const [user, setUser] = useState(() => {

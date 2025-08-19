@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 
-// Sample data
+
+// Categories of services workers can provide
 const categories = [
   { id: 1, name: 'Plumbing', icon: '🔧' },
   { id: 2, name: 'Cleaning', icon: '🧹' },
@@ -12,6 +13,7 @@ const categories = [
   { id: 8, name: 'General Labor', icon: '👷' }
 ]
 
+// Worker profiles with detailed info
 const workers = [
   {
     id: 1,
@@ -25,10 +27,12 @@ const workers = [
     skills: ['Pipe fitting', 'Drainage', 'Water heater installation'],
     experience: '5 years',
     available: true,
+    // Example portfolio projects
     portfolio: [
       { id: 1, title: 'Kitchen Sink Installation', description: 'Complete kitchen sink and drainage system installation', image: 'https://via.placeholder.com/300x200' },
       { id: 2, title: 'Bathroom Renovation', description: 'Full bathroom plumbing renovation', image: 'https://via.placeholder.com/300x200' }
     ],
+    // Client reviews
     reviews: [
       { id: 1, client: 'Sarah K.', rating: 5, comment: 'Excellent work, very professional and clean.', date: '2024-01-15' },
       { id: 2, client: 'Mike O.', rating: 4, comment: 'Good quality work, arrived on time.', date: '2024-01-10' }
@@ -74,6 +78,7 @@ const workers = [
   }
 ]
 
+// Jobs posted by clients and assigned to workers
 const jobs = [
   {
     id: 1,
@@ -103,30 +108,36 @@ const jobs = [
   }
 ]
 
+
+// These are mock API endpoints used with MSW (Mock Service Worker)
+
 export const handlers = [
-  // Categories
+  // Get all categories
   http.get('/api/v1/categories', () => {
     return HttpResponse.json(categories)
   }),
 
-  // Workers
+  // Get all workers with optional filtering and pagination
   http.get('/api/v1/workers', ({ request }) => {
     const url = new URL(request.url)
-    const category = url.searchParams.get('category')
-    const location = url.searchParams.get('location')
-    const page = parseInt(url.searchParams.get('page') || '1')
+    const category = url.searchParams.get('category')  // filter by category
+    const location = url.searchParams.get('location')  // filter by location
+    const page = parseInt(url.searchParams.get('page') || '1') // pagination
     const limit = parseInt(url.searchParams.get('limit') || '10')
     
     let filteredWorkers = [...workers]
     
+    // Apply category filter
     if (category) {
       filteredWorkers = filteredWorkers.filter(w => w.category === category)
     }
     
+    // Apply location filter
     if (location) {
       filteredWorkers = filteredWorkers.filter(w => w.location.includes(location))
     }
     
+    // Paginate workers
     const start = (page - 1) * limit
     const end = start + limit
     const paginatedWorkers = filteredWorkers.slice(start, end)
@@ -142,6 +153,7 @@ export const handlers = [
     })
   }),
 
+  // Get a single worker by ID
   http.get('/api/v1/workers/:id', ({ params }) => {
     const worker = workers.find(w => w.id === parseInt(params.id))
     if (!worker) {
@@ -150,11 +162,11 @@ export const handlers = [
     return HttpResponse.json(worker)
   }),
 
-  // Authentication
+  // Mock authentication endpoint (login)
   http.post('/api/v1/auth/login', async ({ request }) => {
     const { email, password } = await request.json()
     
-    // Mock authentication - accept any valid email/password
+    // Accept any email/password for testing
     if (email && password) {
       return HttpResponse.json({
         accessToken: 'mock-jwt-token-' + Date.now(),
@@ -167,10 +179,11 @@ export const handlers = [
       })
     }
     
+    // If missing credentials → unauthorized
     return new HttpResponse(null, { status: 401 })
   }),
 
-  // Jobs
+  // Create a new job
   http.post('/api/v1/jobs', async ({ request }) => {
     const jobData = await request.json()
     const newJob = {
@@ -183,6 +196,7 @@ export const handlers = [
     return HttpResponse.json(newJob, { status: 201 })
   }),
 
+  // Get all jobs (or jobs by client ID)
   http.get('/api/v1/jobs', ({ request }) => {
     const url = new URL(request.url)
     const clientId = url.searchParams.get('client_id')
@@ -195,6 +209,7 @@ export const handlers = [
     return HttpResponse.json(jobs)
   }),
 
+  // Update a job (PATCH request)
   http.patch('/api/v1/jobs/:id', async ({ params, request }) => {
     const jobId = parseInt(params.id)
     const job = jobs.find(j => j.id === jobId)
@@ -203,10 +218,10 @@ export const handlers = [
       return new HttpResponse(null, { status: 404 })
     }
     
+    // Merge updates into job object
     const updates = await request.json()
     Object.assign(job, updates)
     
     return HttpResponse.json(job)
   })
 ]
-

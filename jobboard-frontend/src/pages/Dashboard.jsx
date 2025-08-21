@@ -7,6 +7,22 @@ function Dashboard({ user }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+    // Handle status change for a job
+    const handleStatusChange = async (jobId, newStatus) => {
+      try {
+        const response = await axios.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
+        // Update local state
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job.id === jobId ? { ...job, status: response.data.status } : job
+          )
+        )
+      } catch (err) {
+        setError('Failed to update job status')
+        console.error('Error updating job status:', err)
+      }
+    }
+
   useEffect(() => {
     if (user) {
       fetchJobs()
@@ -173,8 +189,17 @@ function Dashboard({ user }) {
                       <span>KSh {job.budget}</span>
                     </div>
                   </div>
-                  <div className="ml-6">
+                  <div className="ml-6 flex flex-col items-end">
                     {getStatusBadge(job.status)}
+                    <select
+                      className="mt-2 px-2 py-1 border rounded text-sm"
+                      value={job.status}
+                      onChange={e => handleStatusChange(job.id, e.target.value)}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
                   </div>
                 </div>
               </div>

@@ -157,3 +157,4 @@ For support or questions, please open an issue in the repository.
 ---
 
 **Note**: This is a frontend-only implementation with mock data. In a production environment, you would connect to a real backend API.
+

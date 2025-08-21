@@ -3,24 +3,32 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 
 function CreateJob({ user }) {
+  // useForm manages form state and validation
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
+
+  // React Router hook to programmatically navigate
   const navigate = useNavigate()
+
+  // Get URL query parameters (e.g., ?worker_id=2)
   const [searchParams] = useSearchParams()
   const workerId = searchParams.get('worker_id')
 
+  // Handle form submission
   const onSubmit = async (data) => {
     try {
+      // Build job payload
       const jobData = {
         ...data,
-        clientId: user?.id || 1,
+        clientId: user?.id || 1,                 // fallback if user ID missing
         workerId: workerId ? parseInt(workerId) : null,
-        budget: parseInt(data.budget)
+        budget: parseInt(data.budget)            // ensure budget is a number
       }
       
+      // Send POST request to create job
       const response = await axios.post('/api/v1/jobs', jobData)
       console.log('Job created:', response.data)
       
-      // Redirect to dashboard
+      // Redirect to dashboard after successful creation
       navigate('/dashboard')
     } catch (error) {
       console.error('Error creating job:', error)
@@ -28,11 +36,14 @@ function CreateJob({ user }) {
     }
   }
 
+  // If no user is logged in, show login prompt
   if (!user) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please log in to create a job</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Please log in to create a job
+          </h1>
           <button 
             onClick={() => navigate('/login')}
             className="text-blue-600 hover:text-blue-800"
@@ -44,20 +55,29 @@ function CreateJob({ user }) {
     )
   }
 
+  // Main job creation form
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Page header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Job</h1>
-        <p className="text-gray-600">Describe the work you need done and find the right worker.</p>
+        <p className="text-gray-600">
+          Describe the work you need done and find the right worker.
+        </p>
       </div>
 
+      {/* Form container */}
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">Job Details</h2>
         </div>
         
+        {/* Job creation form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+          
+          {/* Title + Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Job title field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Job Title *
@@ -65,21 +85,25 @@ function CreateJob({ user }) {
               <input
                 {...register('title', { required: 'Job title is required' })}
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., Fix leaking kitchen sink"
               />
+              {/* Validation error */}
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
               )}
             </div>
 
+            {/* Category dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category *
               </label>
               <select
                 {...register('category', { required: 'Category is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a category</option>
                 <option value="Plumbing">Plumbing</option>
@@ -97,6 +121,7 @@ function CreateJob({ user }) {
             </div>
           </div>
 
+          {/* Description field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Description *
@@ -110,15 +135,18 @@ function CreateJob({ user }) {
                 }
               })}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe the work you need done, including any specific requirements or details..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Describe the work you need done, including any specific requirements..."
             />
             {errors.description && (
               <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
             )}
           </div>
 
+          {/* Location + Budget */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Location field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Location *
@@ -126,7 +154,8 @@ function CreateJob({ user }) {
               <input
                 {...register('location', { required: 'Location is required' })}
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., Nairobi West"
               />
               {errors.location && (
@@ -134,6 +163,7 @@ function CreateJob({ user }) {
               )}
             </div>
 
+            {/* Budget field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Budget (KSh) *
@@ -148,7 +178,8 @@ function CreateJob({ user }) {
                 })}
                 type="number"
                 min="100"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                           focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., 2000"
               />
               {errors.budget && (
@@ -157,6 +188,7 @@ function CreateJob({ user }) {
             </div>
           </div>
 
+          {/* Scheduled date (optional) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Preferred Date (Optional)
@@ -164,22 +196,27 @@ function CreateJob({ user }) {
             <input
               {...register('scheduledDate')}
               type="datetime-local"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
+          {/* Form actions (Cancel / Submit) */}
           <div className="flex items-center justify-end space-x-4 pt-6 border-t">
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium transition-colors"
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 
+                         rounded-md text-sm font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white 
+                         rounded-md text-sm font-medium transition-colors 
+                         disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Creating...' : 'Create Job'}
             </button>

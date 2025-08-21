@@ -55,7 +55,7 @@ function WorkerDetail() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         {/* Header */}
         <div className="p-6 border-b">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -151,7 +151,7 @@ function WorkerDetail() {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-gray-50 p-6 rounded-lg sticky top-8">
+              <div className="bg-gray-50 p-6 rounded-lg sticky top-8 border border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Hire {worker.name}</h3>
                 <div className="space-y-4">
                   <div>

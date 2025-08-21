@@ -55,7 +55,7 @@ function Workers() {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Find Skilled Workers</h1>
         
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -64,7 +64,7 @@ function Workers() {
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               >
                 <option value="">All Categories</option>
                 <option value="Plumbing">Plumbing</option>
@@ -86,7 +86,7 @@ function Workers() {
                 placeholder="Enter location..."
                 value={filters.location}
                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ function Workers() {
       {/* Workers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {workers.map((worker) => (
-          <div key={worker.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+          <div key={worker.id} className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">{worker.name}</h3>

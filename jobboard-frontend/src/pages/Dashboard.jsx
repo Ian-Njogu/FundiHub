@@ -174,7 +174,7 @@ function Dashboard({ user }) {
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-50">
             {jobs.map((job) => (
               <div key={job.id} className="p-6">
                 <div className="flex items-center justify-between">

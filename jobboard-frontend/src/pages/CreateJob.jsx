@@ -67,7 +67,7 @@ function CreateJob({ user }) {
       </div>
 
       {/* Form container */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">Job Details</h2>
         </div>
@@ -85,8 +85,8 @@ function CreateJob({ user }) {
               <input
                 {...register('title', { required: 'Job title is required' })}
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md 
+                           focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
                 placeholder="e.g., Fix leaking kitchen sink"
               />
               {/* Validation error */}
@@ -102,8 +102,8 @@ function CreateJob({ user }) {
               </label>
               <select
                 {...register('category', { required: 'Category is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md 
+                           focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               >
                 <option value="">Select a category</option>
                 <option value="Plumbing">Plumbing</option>
@@ -135,8 +135,8 @@ function CreateJob({ user }) {
                 }
               })}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 rounded-md 
+                         focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
               placeholder="Describe the work you need done, including any specific requirements..."
             />
             {errors.description && (
@@ -154,8 +154,8 @@ function CreateJob({ user }) {
               <input
                 {...register('location', { required: 'Location is required' })}
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md 
+                           focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
                 placeholder="e.g., Nairobi West"
               />
               {errors.location && (
@@ -178,8 +178,8 @@ function CreateJob({ user }) {
                 })}
                 type="number"
                 min="100"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md 
+                           focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
                 placeholder="e.g., 2000"
               />
               {errors.budget && (
@@ -196,8 +196,8 @@ function CreateJob({ user }) {
             <input
               {...register('scheduledDate')}
               type="datetime-local"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 rounded-md 
+                         focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             />
           </div>
 

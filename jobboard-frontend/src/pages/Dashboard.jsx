@@ -97,7 +97,7 @@ function Dashboard({ user }) {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
               <span className="text-blue-600 text-xl">📋</span>
@@ -109,7 +109,7 @@ function Dashboard({ user }) {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <span className="text-yellow-600 text-xl">⏳</span>
@@ -123,7 +123,7 @@ function Dashboard({ user }) {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
               <span className="text-green-600 text-xl">✅</span>
@@ -139,7 +139,7 @@ function Dashboard({ user }) {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="flex flex-wrap gap-4">
           <Link
@@ -158,7 +158,7 @@ function Dashboard({ user }) {
       </div>
 
       {/* Recent Jobs */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">Recent Jobs</h2>
         </div>
@@ -192,7 +192,7 @@ function Dashboard({ user }) {
                   <div className="ml-6 flex flex-col items-end">
                     {getStatusBadge(job.status)}
                     <select
-                      className="mt-2 px-2 py-1 border rounded text-sm"
+                      className="mt-2 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
                       value={job.status}
                       onChange={e => handleStatusChange(job.id, e.target.value)}
                     >

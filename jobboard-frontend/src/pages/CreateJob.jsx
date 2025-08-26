@@ -188,18 +188,33 @@ function CreateJob({ user }) {
             </div>
           </div>
 
-          {/* Scheduled date (optional) */}
+          {/* Deadline (optional) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Preferred Date (Optional)
+              Deadline (Optional)
             </label>
             <input
-              {...register('scheduledDate')}
+              {...register('deadline')}
               type="datetime-local"
               className="w-full px-3 py-2 border border-gray-200 rounded-md 
                          focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
             />
           </div>
+
+          {/* Invited worker (optional) */}
+          {workerId && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Invited Worker
+              </label>
+              <input
+                type="text"
+                value={`Worker #${workerId}`}
+                disabled
+                className="w-full px-3 py-2 border border-gray-100 rounded-md bg-gray-50 text-gray-600"
+              />
+            </div>
+          )}
 
           {/* Form actions (Cancel / Submit) */}
           <div className="flex items-center justify-end space-x-4 pt-6 border-t">

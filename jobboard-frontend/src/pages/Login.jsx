@@ -66,6 +66,19 @@ function Login({ onLogin }) {
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
+            <div>
+              <label htmlFor="role" className="sr-only">
+                Role
+              </label>
+              <select
+                {...register('role')}
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-200 text-gray-900 mt-2 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 sm:text-sm"
+                defaultValue="client"
+              >
+                <option value="client">Client</option>
+                <option value="worker">Worker</option>
+              </select>
+            </div>
               <input
                 {...register('password', { 
                   required: 'Password is required',

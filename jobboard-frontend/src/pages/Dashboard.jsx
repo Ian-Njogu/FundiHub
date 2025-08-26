@@ -32,8 +32,13 @@ function Dashboard({ user }) {
   const fetchJobs = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`/api/v1/jobs?client_id=${user.id}`)
-      setJobs(response.data)
+      if (user.role === 'client') {
+        const response = await axios.get(`/api/v1/jobs?client_id=${user.id}`)
+        setJobs(response.data)
+      } else {
+        const response = await axios.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
+        setJobs(response.data)
+      }
       setError(null)
     } catch (err) {
       setError('Failed to fetch jobs')
@@ -46,6 +51,7 @@ function Dashboard({ user }) {
   const getStatusBadge = (status) => {
     const statusConfig = {
       pending: { color: 'bg-yellow-100 text-yellow-800', text: 'Pending' },
+      accepted: { color: 'bg-indigo-100 text-indigo-800', text: 'Accepted' },
       in_progress: { color: 'bg-blue-100 text-blue-800', text: 'In Progress' },
       completed: { color: 'bg-green-100 text-green-800', text: 'Completed' },
       cancelled: { color: 'bg-red-100 text-red-800', text: 'Cancelled' }
@@ -139,23 +145,30 @@ function Dashboard({ user }) {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="flex flex-wrap gap-4">
-          <Link
-            to="/create-job"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          >
-            Post New Job
-          </Link>
-          <Link
-            to="/workers"
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          >
-            Find Workers
-          </Link>
+      {user.role === 'client' ? (
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              to="/create-job"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              Post New Job
+            </Link>
+            <Link
+              to="/workers"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              Find Workers
+            </Link>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Jobs For You</h2>
+          <p className="text-gray-600">These jobs match your category and location.</p>
+        </div>
+      )}
 
       {/* Recent Jobs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
@@ -165,13 +178,19 @@ function Dashboard({ user }) {
         
         {jobs.length === 0 ? (
           <div className="p-6 text-center">
-            <p className="text-gray-500 mb-4">You haven't posted any jobs yet.</p>
-            <Link
-              to="/create-job"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-            >
-              Post Your First Job
-            </Link>
+            {user.role === 'client' ? (
+              <>
+                <p className="text-gray-500 mb-4">You haven't posted any jobs yet.</p>
+                <Link
+                  to="/create-job"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Post Your First Job
+                </Link>
+              </>
+            ) : (
+              <p className="text-gray-500">No matching jobs right now. Check back soon.</p>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
@@ -187,20 +206,49 @@ function Dashboard({ user }) {
                       <span>{job.location}</span>
                       <span>•</span>
                       <span>KSh {job.budget}</span>
+                      {job.deadline && (
+                        <>
+                          <span>•</span>
+                          <span>Deadline: {new Date(job.deadline).toLocaleString()}</span>
+                        </>
+                      )}
                     </div>
                   </div>
-                  <div className="ml-6 flex flex-col items-end">
-                    {getStatusBadge(job.status)}
-                    <select
-                      className="mt-2 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
-                      value={job.status}
-                      onChange={e => handleStatusChange(job.id, e.target.value)}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                  </div>
+                  {user.role === 'client' ? (
+                    <div className="ml-6 flex flex-col items-end">
+                      {getStatusBadge(job.status)}
+                      <select
+                        className="mt-2 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+                        value={job.status}
+                        onChange={e => handleStatusChange(job.id, e.target.value)}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <div className="ml-6 flex flex-col items-end">
+                      <button
+                        onClick={async () => {
+                          try {
+                            await axios.post(`/api/v1/jobs/${job.id}/applications`, {
+                              workerId: user.id,
+                              message: 'I can help with this job.',
+                              quote: job.budget
+                            })
+                            alert('Applied to job!')
+                          } catch (e) {
+                            alert('Failed to apply')
+                          }
+                        }}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

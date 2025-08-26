@@ -250,6 +250,29 @@ export const handlers = [
     return HttpResponse.json(job)
   }),
 
+  // List applications (optionally by client_id or job_id)
+  http.get('/api/v1/applications', ({ request }) => {
+    const url = new URL(request.url)
+    const clientId = url.searchParams.get('client_id')
+    const jobId = url.searchParams.get('job_id')
+
+    let result = [...applications]
+    if (jobId) {
+      result = result.filter(a => a.jobId === parseInt(jobId))
+    }
+    if (clientId) {
+      const clientJobIds = jobs.filter(j => j.clientId === parseInt(clientId)).map(j => j.id)
+      result = result.filter(a => clientJobIds.includes(a.jobId))
+    }
+    // hydrate simple job fields for convenience
+    const hydrated = result.map(a => {
+      const job = jobs.find(j => j.id === a.jobId)
+      const worker = workers.find(w => w.id === a.workerId)
+      return { ...a, jobTitle: job?.title, jobCategory: job?.category, jobLocation: job?.location, workerName: worker?.name }
+    })
+    return HttpResponse.json(hydrated)
+  }),
+
   // Worker applies to a job
   http.post('/api/v1/jobs/:id/applications', async ({ params, request }) => {
     const jobId = parseInt(params.id)
@@ -308,6 +331,13 @@ export const handlers = [
     }
     app.status = 'rejected'
     return HttpResponse.json(app)
+  }),
+
+  // List jobs assigned to a worker
+  http.get('/api/v1/worker/:id/jobs', ({ params }) => {
+    const workerId = parseInt(params.id)
+    const assigned = jobs.filter(j => j.workerId === workerId)
+    return HttpResponse.json(assigned)
   }),
 
   // Post a review

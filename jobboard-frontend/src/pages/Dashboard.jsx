@@ -4,6 +4,8 @@ import axios from 'axios'
 
 function Dashboard({ user }) {
   const [jobs, setJobs] = useState([])
+  const [applications, setApplications] = useState([])
+  const [workerJobs, setWorkerJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -26,6 +28,11 @@ function Dashboard({ user }) {
   useEffect(() => {
     if (user) {
       fetchJobs()
+      if (user.role === 'client') {
+        fetchApplications()
+      } else if (user.role === 'worker') {
+        fetchWorkerJobs()
+      }
     }
   }, [user])
 
@@ -45,6 +52,24 @@ function Dashboard({ user }) {
       console.error('Error fetching jobs:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchApplications = async () => {
+    try {
+      const res = await axios.get(`/api/v1/applications?client_id=${user.id}`)
+      setApplications(res.data)
+    } catch (e) {
+      console.error('Failed to load applications', e)
+    }
+  }
+
+  const fetchWorkerJobs = async () => {
+    try {
+      const res = await axios.get(`/api/v1/worker/${user.id}/jobs`)
+      setWorkerJobs(res.data)
+    } catch (e) {
+      console.error('Failed to load worker jobs', e)
     }
   }
 
@@ -165,8 +190,9 @@ function Dashboard({ user }) {
         </div>
       ) : (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Jobs For You</h2>
-          <p className="text-gray-600">These jobs match your category and location.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Jobs For You</h2>
+          <p className="text-gray-600 mb-4">These jobs match your category and location.</p>
+          <Link to="/job-feed" className="text-blue-600 hover:text-blue-800">Go to Job Feed →</Link>
         </div>
       )}
 
@@ -255,6 +281,99 @@ function Dashboard({ user }) {
           </div>
         )}
       </div>
+
+      {/* Client Applications Panel */}
+      {user.role === 'client' && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 mt-8">
+          <div className="p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">Applications</h2>
+          </div>
+          {applications.length === 0 ? (
+            <div className="p-6 text-gray-500">No applications yet.</div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {applications.map(app => (
+                <div key={app.id} className="p-6 flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-900 font-medium">{app.workerName || `Worker #${app.workerId}`}</p>
+                    <p className="text-gray-600 text-sm">Applied to: {app.jobTitle} • {app.jobCategory} • {app.jobLocation}</p>
+                    <p className="text-gray-600 text-sm mt-1">Message: {app.message} • Quote: KSh {app.quote}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          await axios.post(`/api/v1/applications/${app.id}/accept`)
+                          fetchJobs(); fetchApplications()
+                        } catch (e) {
+                          alert('Failed to accept')
+                        }
+                      }}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await axios.post(`/api/v1/applications/${app.id}/reject`)
+                          fetchApplications()
+                        } catch (e) {
+                          alert('Failed to reject')
+                        }
+                      }}
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Worker My Jobs Section */}
+      {user.role === 'worker' && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 mt-8">
+          <div className="p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">My Jobs</h2>
+          </div>
+          {workerJobs.length === 0 ? (
+            <div className="p-6 text-gray-500">You have no assigned jobs yet.</div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {workerJobs.map(job => (
+                <div key={job.id} className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{job.title}</h3>
+                      <p className="text-gray-600 mb-2">{job.description}</p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>{job.category}</span>
+                        <span>•</span>
+                        <span>{job.location}</span>
+                        <span>•</span>
+                        <span>KSh {job.budget}</span>
+                        {job.deadline && (
+                          <>
+                            <span>•</span>
+                            <span>Deadline: {new Date(job.deadline).toLocaleString()}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="ml-6 flex flex-col items-end">
+                      <span className="text-sm text-gray-600 mb-2">Status: {job.status}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -16,17 +16,26 @@ function Header({ user, onLogout }) {
             <Link to="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
               Home
             </Link>
-            <Link to="/workers" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-              Find Workers
-            </Link>
+            {(!user || user.role === 'client') && (
+              <Link to="/workers" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                Find Workers
+              </Link>
+            )}
+            {user && user.role === 'worker' && (
+              <Link to="/job-feed" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                Job Feed
+              </Link>
+            )}
             {user && (
               <>
                 <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                   Dashboard
                 </Link>
-                <Link to="/create-job" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                  Post Job
-                </Link>
+                {user.role === 'client' && (
+                  <Link to="/create-job" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                    Post Job
+                  </Link>
+                )}
               </>
             )}
           </nav>

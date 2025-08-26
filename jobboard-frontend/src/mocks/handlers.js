@@ -89,6 +89,7 @@ const jobs = [
     category: 'Plumbing',
     location: 'Nairobi West',
     budget: 2000,
+    deadline: '2024-02-01T16:00:00Z',
     status: 'in_progress',
     createdAt: '2024-01-15T10:00:00Z',
     scheduledDate: '2024-01-16T14:00:00Z'
@@ -102,10 +103,19 @@ const jobs = [
     category: 'Cleaning',
     location: 'Nairobi Central',
     budget: 3000,
+    deadline: '2024-01-12T12:00:00Z',
     status: 'completed',
     createdAt: '2024-01-10T09:00:00Z',
     completedDate: '2024-01-12T16:00:00Z'
   }
+]
+
+// Applications to jobs by workers
+const applications = [
+]
+
+// Reviews left after job completion
+const reviews = [
 ]
 
 
@@ -164,7 +174,7 @@ export const handlers = [
 
   // Mock authentication endpoint (login)
   http.post('/api/v1/auth/login', async ({ request }) => {
-    const { email, password } = await request.json()
+    const { email, password, role } = await request.json()
     
     // Accept any email/password for testing
     if (email && password) {
@@ -174,7 +184,7 @@ export const handlers = [
           id: 1,
           email,
           name: 'Test User',
-          role: 'client'
+          role: role === 'worker' ? 'worker' : 'client'
         }
       })
     }
@@ -196,14 +206,29 @@ export const handlers = [
     return HttpResponse.json(newJob, { status: 201 })
   }),
 
-  // Get all jobs (or jobs by client ID)
+  // Get all jobs (or jobs by client ID, or worker feed)
   http.get('/api/v1/jobs', ({ request }) => {
     const url = new URL(request.url)
     const clientId = url.searchParams.get('client_id')
-    
+    const feedForWorkerId = url.searchParams.get('feed_for_worker_id')
+
     if (clientId) {
       const clientJobs = jobs.filter(job => job.clientId === parseInt(clientId))
       return HttpResponse.json(clientJobs)
+    }
+
+    if (feedForWorkerId) {
+      const workerId = parseInt(feedForWorkerId)
+      const worker = workers.find(w => w.id === workerId)
+      if (!worker) {
+        return HttpResponse.json([])
+      }
+      const feed = jobs.filter(j => 
+        j.status === 'pending' &&
+        j.category === worker.category &&
+        j.location.includes(worker.location.split(' ')[0])
+      )
+      return HttpResponse.json(feed)
     }
     
     return HttpResponse.json(jobs)
@@ -223,5 +248,73 @@ export const handlers = [
     Object.assign(job, updates)
     
     return HttpResponse.json(job)
+  }),
+
+  // Worker applies to a job
+  http.post('/api/v1/jobs/:id/applications', async ({ params, request }) => {
+    const jobId = parseInt(params.id)
+    const job = jobs.find(j => j.id === jobId)
+    if (!job) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const body = await request.json()
+    const app = {
+      id: applications.length + 1,
+      jobId,
+      workerId: body.workerId,
+      message: body.message,
+      quote: body.quote,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    }
+    applications.push(app)
+    return HttpResponse.json(app, { status: 201 })
+  }),
+
+  // Client invites a worker to a job
+  http.post('/api/v1/jobs/:id/invitations', async ({ params, request }) => {
+    const jobId = parseInt(params.id)
+    const job = jobs.find(j => j.id === jobId)
+    if (!job) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const { workerId } = await request.json()
+    job.invitedWorkerId = workerId
+    return HttpResponse.json(job)
+  }),
+
+  // Client accepts an application (assign worker and move to accepted)
+  http.post('/api/v1/applications/:id/accept', ({ params }) => {
+    const appId = parseInt(params.id)
+    const app = applications.find(a => a.id === appId)
+    if (!app) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    app.status = 'accepted'
+    const job = jobs.find(j => j.id === app.jobId)
+    if (job) {
+      job.workerId = app.workerId
+      job.status = 'accepted'
+    }
+    return HttpResponse.json(app)
+  }),
+
+  // Client rejects an application
+  http.post('/api/v1/applications/:id/reject', ({ params }) => {
+    const appId = parseInt(params.id)
+    const app = applications.find(a => a.id === appId)
+    if (!app) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    app.status = 'rejected'
+    return HttpResponse.json(app)
+  }),
+
+  // Post a review
+  http.post('/api/v1/reviews', async ({ request }) => {
+    const body = await request.json()
+    const review = { id: reviews.length + 1, ...body, createdAt: new Date().toISOString() }
+    reviews.push(review)
+    return HttpResponse.json(review, { status: 201 })
   })
 ]

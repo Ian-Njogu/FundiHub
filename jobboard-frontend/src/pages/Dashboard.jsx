@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/api'
 
 function Dashboard({ user }) {
   const [jobs, setJobs] = useState([])
@@ -12,7 +12,7 @@ function Dashboard({ user }) {
     // Handle status change for a job
     const handleStatusChange = async (jobId, newStatus) => {
       try {
-        const response = await axios.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
+        const response = await api.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
         // Update local state
         setJobs((prevJobs) =>
           prevJobs.map((job) =>
@@ -40,10 +40,10 @@ function Dashboard({ user }) {
     try {
       setLoading(true)
       if (user.role === 'client') {
-        const response = await axios.get(`/api/v1/jobs?client_id=${user.id}`)
+        const response = await api.get(`/api/v1/jobs?client_id=${user.id}`)
         setJobs(response.data)
       } else {
-        const response = await axios.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
+        const response = await api.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
         setJobs(response.data)
       }
       setError(null)
@@ -57,7 +57,7 @@ function Dashboard({ user }) {
 
   const handleWorkerJobStatusChange = async (jobId, newStatus) => {
     try {
-      const response = await axios.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
+      const response = await api.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
       setWorkerJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: response.data.status } : j))
     } catch (e) {
       alert('Failed to update status')
@@ -68,7 +68,7 @@ function Dashboard({ user }) {
 
   const fetchApplications = async () => {
     try {
-      const res = await axios.get(`/api/v1/applications?client_id=${user.id}`)
+      const res = await api.get(`/api/v1/applications?client_id=${user.id}`)
       setApplications(res.data)
     } catch (e) {
       console.error('Failed to load applications', e)
@@ -77,7 +77,7 @@ function Dashboard({ user }) {
 
   const fetchWorkerJobs = async () => {
     try {
-      const res = await axios.get(`/api/v1/worker/${user.id}/jobs`)
+      const res = await api.get(`/api/v1/worker/${user.id}/jobs`)
       setWorkerJobs(res.data)
     } catch (e) {
       console.error('Failed to load worker jobs', e)
@@ -271,7 +271,7 @@ function Dashboard({ user }) {
                       <button
                         onClick={async () => {
                           try {
-                            await axios.post(`/api/v1/jobs/${job.id}/applications`, {
+                            await api.post(`/api/v1/jobs/${job.id}/applications`, {
                               workerId: user.id,
                               message: 'I can help with this job.',
                               quote: job.budget
@@ -315,7 +315,7 @@ function Dashboard({ user }) {
                     <button
                       onClick={async () => {
                         try {
-                          await axios.post(`/api/v1/applications/${app.id}/accept`)
+                          await api.post(`/api/v1/applications/${app.id}/accept`)
                           fetchJobs(); fetchApplications()
                         } catch (e) {
                           alert('Failed to accept')
@@ -328,7 +328,7 @@ function Dashboard({ user }) {
                     <button
                       onClick={async () => {
                         try {
-                          await axios.post(`/api/v1/applications/${app.id}/reject`)
+                          await api.post(`/api/v1/applications/${app.id}/reject`)
                           fetchApplications()
                         } catch (e) {
                           alert('Failed to reject')

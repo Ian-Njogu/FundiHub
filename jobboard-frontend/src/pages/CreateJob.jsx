@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/api'
 
 function CreateJob({ user }) {
   // useForm manages form state and validation
@@ -25,7 +25,7 @@ function CreateJob({ user }) {
       }
       
       // Send POST request to create job
-      const response = await axios.post('/api/v1/jobs', jobData)
+      const response = await api.post('/api/v1/jobs', jobData)
       console.log('Job created:', response.data)
       
       // Redirect to dashboard after successful creation

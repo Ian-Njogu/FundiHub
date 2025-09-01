@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/api'
 
 function JobFeed({ user }) {
   const [jobs, setJobs] = useState([])
@@ -14,7 +14,7 @@ function JobFeed({ user }) {
     const fetchFeed = async () => {
       try {
         setLoading(true)
-        const res = await axios.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
+        const res = await api.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
         setJobs(res.data)
         setError(null)
       } catch (e) {
@@ -92,7 +92,7 @@ function JobFeed({ user }) {
                     <button
                       onClick={async () => {
                         try {
-                          await axios.post(`/api/v1/jobs/${job.id}/applications`, {
+                          await api.post(`/api/v1/jobs/${job.id}/applications`, {
                             workerId: user.id,
                             message: 'I can help with this job.',
                             quote: job.budget

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/api'
 
 function WorkerDetail() {
   const { id } = useParams()
@@ -15,7 +15,7 @@ function WorkerDetail() {
   const fetchWorker = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`/api/v1/workers/${id}`)
+      const response = await api.get(`/api/v1/workers/${id}`)
       setWorker(response.data)
       setError(null)
     } catch (err) {

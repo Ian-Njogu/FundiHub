@@ -22,7 +22,7 @@ function Workers() {
       if (filters.category) params.append('category', filters.category)
       if (filters.location) params.append('location', filters.location)
       
-      const response = await api.get(`/api/v1/workers?${params}`)
+      const response = await api.get(`/api/v1/workers/?${params}`)
       setWorkers(response.data.workers || response.data)
       setError(null)
     } catch (err) {

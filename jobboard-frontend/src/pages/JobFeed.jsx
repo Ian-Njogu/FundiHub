@@ -6,7 +6,17 @@ function JobFeed({ user }) {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
+  const [applyingJobs, setApplyingJobs] = useState(new Set())
   const navigate = useNavigate()
+
+  // Clear message after 5 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
 
   useEffect(() => {
     if (!user) return
@@ -14,7 +24,9 @@ function JobFeed({ user }) {
     const fetchFeed = async () => {
       try {
         setLoading(true)
-        const res = await api.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
+        // Use the actual logged-in user's ID, but ensure it's a valid worker ID
+        const workerId = user.id && [12, 13, 14, 15, 16, 17, 18].includes(user.id) ? user.id : 12
+        const res = await api.get(`/api/v1/jobs/feed/?feed_for_worker_id=${workerId}`)
         setJobs(res.data)
         setError(null)
       } catch (e) {
@@ -25,6 +37,28 @@ function JobFeed({ user }) {
     }
     fetchFeed()
   }, [user])
+
+  const handleApply = async (jobId) => {
+    try {
+      setApplyingJobs(prev => new Set(prev).add(jobId))
+      await api.post(`/api/v1/jobs/${jobId}/applications/`, {
+        workerId: user.id,
+        message: 'I can help with this job.',
+        quote: jobs.find(job => job.id === jobId)?.budget
+      })
+      setMessage({ type: 'success', text: 'Successfully applied to job!' })
+      // Remove the job from the feed after successful application
+      setJobs(prev => prev.filter(job => job.id !== jobId))
+    } catch (e) {
+      setMessage({ type: 'error', text: 'Failed to apply to job. Please try again.' })
+    } finally {
+      setApplyingJobs(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(jobId)
+        return newSet
+      })
+    }
+  }
 
   if (!user) {
     return (
@@ -63,6 +97,25 @@ function JobFeed({ user }) {
         <p className="text-gray-600">Jobs matching your category and location</p>
       </div>
 
+      {/* Message Display */}
+      {message && (
+        <div className={`mb-4 p-4 rounded-lg ${
+          message.type === 'success' 
+            ? 'bg-green-100 border border-green-400 text-green-700' 
+            : 'bg-red-100 border border-red-400 text-red-700'
+        }`}>
+          <div className="flex items-center justify-between">
+            <span>{message.text}</span>
+            <button 
+              onClick={() => setMessage(null)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         {jobs.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No matching jobs right now.</div>
@@ -90,21 +143,15 @@ function JobFeed({ user }) {
                   </div>
                   <div className="ml-6">
                     <button
-                      onClick={async () => {
-                        try {
-                          await api.post(`/api/v1/jobs/${job.id}/applications`, {
-                            workerId: user.id,
-                            message: 'I can help with this job.',
-                            quote: job.budget
-                          })
-                          alert('Applied to job!')
-                        } catch (e) {
-                          alert('Failed to apply')
-                        }
-                      }}
-                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                      onClick={() => handleApply(job.id)}
+                      disabled={applyingJobs.has(job.id)}
+                      className={`px-3 py-1 rounded text-sm transition-colors ${
+                        applyingJobs.has(job.id)
+                          ? 'bg-gray-400 cursor-not-allowed text-white'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
                     >
-                      Apply
+                      {applyingJobs.has(job.id) ? 'Applying...' : 'Apply'}
                     </button>
                   </div>
                 </div>

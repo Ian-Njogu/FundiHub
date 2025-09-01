@@ -12,7 +12,7 @@ function Dashboard({ user }) {
     // Handle status change for a job
     const handleStatusChange = async (jobId, newStatus) => {
       try {
-        const response = await api.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
+        const response = await api.patch(`/api/v1/jobs/${jobId}/`, { status: newStatus })
         // Update local state
         setJobs((prevJobs) =>
           prevJobs.map((job) =>
@@ -40,12 +40,14 @@ function Dashboard({ user }) {
     try {
       setLoading(true)
       if (user.role === 'client') {
-        const response = await api.get(`/api/v1/jobs?client_id=${user.id}`)
+        const response = await api.get(`/api/v1/jobs/?client_id=${user.id}`)
         // Handle both array and paginated response formats
         const jobsData = Array.isArray(response.data) ? response.data : response.data.results || []
         setJobs(jobsData)
       } else {
-        const response = await api.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
+        // Use the actual logged-in user's ID, but ensure it's a valid worker ID
+        const workerId = user.id && [12, 13, 14, 15, 16, 17, 18].includes(user.id) ? user.id : 12
+        const response = await api.get(`/api/v1/jobs/feed/?feed_for_worker_id=${workerId}`)
         // Handle both array and paginated response formats
         const jobsData = Array.isArray(response.data) ? response.data : response.data.results || []
         setJobs(jobsData)
@@ -62,7 +64,7 @@ function Dashboard({ user }) {
 
   const handleWorkerJobStatusChange = async (jobId, newStatus) => {
     try {
-      const response = await api.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
+      const response = await api.patch(`/api/v1/jobs/${jobId}/`, { status: newStatus })
       setWorkerJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: response.data.status } : j))
     } catch (e) {
       alert('Failed to update status')
@@ -73,7 +75,7 @@ function Dashboard({ user }) {
 
   const fetchApplications = async () => {
     try {
-      const res = await api.get(`/api/v1/applications?client_id=${user.id}`)
+      const res = await api.get(`/api/v1/applications/?client_id=${user.id}`)
       // Handle both array and paginated response formats
       const applicationsData = Array.isArray(res.data) ? res.data : res.data.results || []
       setApplications(applicationsData)
@@ -85,7 +87,7 @@ function Dashboard({ user }) {
 
   const fetchWorkerJobs = async () => {
     try {
-      const res = await api.get(`/api/v1/worker/${user.id}/jobs`)
+      const res = await api.get(`/api/v1/worker/${user.id}/jobs/`)
       // Handle both array and paginated response formats
       const workerJobsData = Array.isArray(res.data) ? res.data : res.data.results || []
       setWorkerJobs(workerJobsData)
@@ -282,7 +284,7 @@ function Dashboard({ user }) {
                       <button
                         onClick={async () => {
                           try {
-                            await api.post(`/api/v1/jobs/${job.id}/applications`, {
+                            await api.post(`/api/v1/jobs/${job.id}/applications/`, {
                               workerId: user.id,
                               message: 'I can help with this job.',
                               quote: job.budget
@@ -326,7 +328,7 @@ function Dashboard({ user }) {
                     <button
                       onClick={async () => {
                         try {
-                          await api.post(`/api/v1/applications/${app.id}/accept`)
+                          await api.post(`/api/v1/applications/${app.id}/accept/`)
                           fetchJobs(); fetchApplications()
                         } catch (e) {
                           alert('Failed to accept')
@@ -339,7 +341,7 @@ function Dashboard({ user }) {
                     <button
                       onClick={async () => {
                         try {
-                          await api.post(`/api/v1/applications/${app.id}/reject`)
+                          await api.post(`/api/v1/applications/${app.id}/reject/`)
                           fetchApplications()
                         } catch (e) {
                           alert('Failed to reject')

@@ -15,7 +15,7 @@ function WorkerDetail() {
   const fetchWorker = async () => {
     try {
       setLoading(true)
-      const response = await api.get(`/api/v1/workers/${id}`)
+      const response = await api.get(`/api/v1/workers/${id}/`)
       setWorker(response.data)
       setError(null)
     } catch (err) {

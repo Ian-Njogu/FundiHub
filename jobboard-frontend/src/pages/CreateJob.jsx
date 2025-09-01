@@ -18,14 +18,18 @@ function CreateJob({ user }) {
     try {
       // Build job payload
       const jobData = {
-        ...data,
-        clientId: user?.id || 1,                 // fallback if user ID missing
-        workerId: workerId ? parseInt(workerId) : null,
-        budget: parseInt(data.budget)            // ensure budget is a number
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        location: data.location,
+        budget: parseFloat(data.budget).toFixed(2),  // ensure budget is a decimal with 2 places
+        deadline: data.deadline ? data.deadline.split('T')[0] : null  // convert datetime-local to date
       }
       
       // Send POST request to create job
-      const response = await api.post('/api/v1/jobs', jobData)
+      console.log('Sending job data:', jobData)
+      console.log('User:', user)
+      const response = await api.post('/api/v1/jobs/', jobData)
       console.log('Job created:', response.data)
       
       // Redirect to dashboard after successful creation

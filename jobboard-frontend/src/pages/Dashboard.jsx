@@ -219,6 +219,22 @@ function Dashboard({ user }) {
         </div>
       )}
 
+      {/* Worker Profile Management */}
+      {user.role === 'worker' && (
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Profile Management</h2>
+          <p className="text-gray-600 mb-4">
+            Set up your skills, location, and preferences to get better job matches.
+          </p>
+          <Link 
+            to="/worker-profile" 
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            Manage Profile
+          </Link>
+        </div>
+      )}
+
       {/* Recent Jobs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         <div className="p-6 border-b">

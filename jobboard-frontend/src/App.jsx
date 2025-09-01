@@ -9,6 +9,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import CreateJob from './pages/CreateJob'
 import JobFeed from './pages/JobFeed'
+import WorkerProfile from './pages/WorkerProfile'
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -40,6 +41,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard user={user} />} />
             <Route path="/create-job" element={<CreateJob user={user} />} />
             <Route path="/job-feed" element={<JobFeed user={user} />} />
+            <Route path="/worker-profile" element={<WorkerProfile user={user} />} />
           </Routes>
         </main>
         <Footer />

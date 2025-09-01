@@ -22,10 +22,30 @@ function JobFeed({ user }) {
   useEffect(() => {
     if (!user) return
     if (user.role !== 'worker') return
-    const fetchFeed = async () => {
+    
+    const checkProfileAndFetchFeed = async () => {
       try {
         setLoading(true)
-        // Use the actual logged-in user's ID - no more hardcoded IDs!
+        
+        // First check if worker has a profile
+        try {
+          await api.get('/api/v1/worker/profile/')
+          // Profile exists, proceed to fetch jobs
+        } catch (e) {
+          if (e.response?.status === 404) {
+            // No profile exists, redirect to profile setup
+            setMessage({ 
+              type: 'info', 
+              text: 'Please set up your profile first to see relevant jobs!' 
+            })
+            setTimeout(() => navigate('/worker-profile'), 2000)
+            return
+          } else {
+            throw e
+          }
+        }
+        
+        // Fetch job feed
         const res = await api.get(`/api/v1/jobs/feed/?feed_for_worker_id=${user.id}`)
         setJobs(res.data)
         setError(null)
@@ -53,8 +73,9 @@ function JobFeed({ user }) {
         setLoading(false)
       }
     }
-    fetchFeed()
-  }, [user])
+    
+    checkProfileAndFetchFeed()
+  }, [user, navigate])
 
   const handleApply = async (jobId) => {
     try {

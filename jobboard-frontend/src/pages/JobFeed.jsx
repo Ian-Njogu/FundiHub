@@ -20,19 +20,49 @@ function JobFeed({ user }) {
   }, [message])
 
   useEffect(() => {
-    if (!user) return
-    if (user.role !== 'worker') return
+    // Check if user is logged in and has access token
+    const accessToken = localStorage.getItem('accessToken')
+    if (!accessToken) {
+      setError('Please log in to view job feed')
+      setLoading(false)
+      return
+    }
+    
+    if (!user) {
+      setError('Please log in to view job feed')
+      setLoading(false)
+      return
+    }
+    
+    if (user.role !== 'worker') {
+      setError('Only workers can view job feed')
+      setLoading(false)
+      return
+    }
     
     const checkProfileAndFetchFeed = async () => {
       try {
         setLoading(true)
+        
+        // Debug: Log current authentication state
+        console.log('Current user:', user)
+        console.log('Access token exists:', !!localStorage.getItem('accessToken'))
+        console.log('Refresh token exists:', !!localStorage.getItem('refreshToken'))
         
         // First check if worker has a profile
         try {
           await api.get('/api/v1/worker/profile/')
           // Profile exists, proceed to fetch jobs
         } catch (e) {
-          if (e.response?.status === 404) {
+          if (e.response?.status === 401) {
+            // User not authenticated, redirect to login
+            setMessage({ 
+              type: 'error', 
+              text: 'Please log in to continue' 
+            })
+            setTimeout(() => navigate('/login'), 2000)
+            return
+          } else if (e.response?.status === 404) {
             // No profile exists, redirect to profile setup
             setMessage({ 
               type: 'info', 
@@ -147,7 +177,19 @@ function JobFeed({ user }) {
   }
 
   if (error) {
-    return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-red-600">{error}</div>
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+        <div className="text-red-600 mb-4">{error}</div>
+        {error.includes('log in') && (
+          <Link 
+            to="/login" 
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors"
+          >
+            Go to Login
+          </Link>
+        )}
+      </div>
+    )
   }
 
   return (

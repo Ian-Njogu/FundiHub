@@ -9,13 +9,10 @@ function Home() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        console.log('Fetching categories from API...')
         const response = await api.get('/api/v1/workers/categories/')
-        console.log('API response:', response.data)
         setCategories(response.data)
       } catch (error) {
         console.error('Error fetching categories:', error)
-        console.log('Using fallback categories...')
         // Fallback to hardcoded categories if API fails
         const fallbackCategories = [
           { id: 1, name: 'Plumbing', icon: '🔧' },
@@ -27,7 +24,6 @@ function Home() {
           { id: 7, name: 'Moving', icon: '📦' },
           { id: 8, name: 'General Labor', icon: '👷' }
         ]
-        console.log('Setting fallback categories:', fallbackCategories)
         setCategories(fallbackCategories)
       } finally {
         setLoading(false)

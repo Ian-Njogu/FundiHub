@@ -8,6 +8,7 @@ function Dashboard({ user }) {
   const [workerJobs, setWorkerJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
 
     // Handle status change for a job
     const handleStatusChange = async (jobId, newStatus) => {
@@ -20,7 +21,7 @@ function Dashboard({ user }) {
           )
         )
       } catch (err) {
-        setError('Failed to update job status')
+        showMessage('error', 'Failed to update job status')
         console.error('Error updating job status:', err)
       }
     }
@@ -35,6 +36,14 @@ function Dashboard({ user }) {
       }
     }
   }, [user])
+
+  // Clear message after 5 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
 
   const fetchJobs = async () => {
     try {
@@ -61,12 +70,20 @@ function Dashboard({ user }) {
     }
   }
 
+  const showMessage = (type, text) => {
+    setMessage({ type, text })
+    // Auto-hide message after 5 seconds
+    setTimeout(() => setMessage(null), 5000)
+  }
+
   const handleWorkerJobStatusChange = async (jobId, newStatus) => {
     try {
       const response = await api.patch(`/api/v1/jobs/${jobId}/`, { status: newStatus })
       setWorkerJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: response.data.status } : j))
+      showMessage('success', 'Job status updated successfully!')
     } catch (e) {
-      alert('Failed to update status')
+      showMessage('error', 'Failed to update job status')
+      console.error('Error updating job status:', e)
     }
   }
 
@@ -148,6 +165,27 @@ function Dashboard({ user }) {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
         <p className="text-gray-600">Welcome back, {user.name}!</p>
       </div>
+
+      {/* Message Display */}
+      {message && (
+        <div className={`mb-4 p-4 rounded-lg ${
+          message.type === 'success' 
+            ? 'bg-green-100 border border-green-400 text-green-700' 
+            : message.type === 'info'
+            ? 'bg-blue-100 border border-blue-400 text-blue-700'
+            : 'bg-red-100 border border-red-400 text-red-700'
+        }`}>
+          <div className="flex items-center justify-between">
+            <span>{message.text}</span>
+            <button 
+              onClick={() => setMessage(null)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -344,9 +382,14 @@ function Dashboard({ user }) {
                       onClick={async () => {
                         try {
                           await api.post(`/api/v1/applications/${app.id}/accept/`)
-                          fetchJobs(); fetchApplications()
+                          // Remove the accepted application from the list
+                          setApplications(prev => prev.filter(a => a.id !== app.id))
+                          // Refresh jobs to show updated status
+                          fetchJobs()
+                          showMessage('success', 'Application accepted successfully!')
                         } catch (e) {
-                          alert('Failed to accept')
+                          showMessage('error', 'Failed to accept application')
+                          console.error('Error accepting application:', e)
                         }
                       }}
                       className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm"
@@ -357,9 +400,12 @@ function Dashboard({ user }) {
                       onClick={async () => {
                         try {
                           await api.post(`/api/v1/applications/${app.id}/reject/`)
-                          fetchApplications()
+                          // Remove the rejected application from the list
+                          setApplications(prev => prev.filter(a => a.id !== app.id))
+                          showMessage('success', 'Application rejected successfully!')
                         } catch (e) {
-                          alert('Failed to reject')
+                          showMessage('error', 'Failed to reject application')
+                          console.error('Error rejecting application:', e)
                         }
                       }}
                       className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm"

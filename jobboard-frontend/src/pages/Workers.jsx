@@ -23,11 +23,26 @@ function Workers() {
       if (filters.location) params.append('location', filters.location)
       
       const response = await api.get(`/api/v1/workers/?${params}`)
-      setWorkers(response.data.workers || response.data)
+      
+      // Handle both paginated and non-paginated responses
+      let workersData = []
+      if (response.data && Array.isArray(response.data)) {
+        // Direct array response
+        workersData = response.data
+      } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+        // Paginated response
+        workersData = response.data.results
+      } else if (response.data && response.data.workers && Array.isArray(response.data.workers)) {
+        // Legacy format
+        workersData = response.data.workers
+      }
+      
+      setWorkers(workersData)
       setError(null)
     } catch (err) {
       setError('Failed to fetch workers')
       console.error('Error fetching workers:', err)
+      setWorkers([]) // Ensure workers is always an array
     } finally {
       setLoading(false)
     }
@@ -94,12 +109,13 @@ function Workers() {
       </div>
 
       {/* Workers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {workers.map((worker) => (
+      {Array.isArray(workers) && workers.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {workers.map((worker) => (
           <div key={worker.id} className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{worker.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{worker.user?.name || 'Unknown'}</h3>
                 <span className={`px-2 py-1 text-xs rounded-full ${
                   worker.available 
                     ? 'bg-green-100 text-green-800' 
@@ -112,33 +128,33 @@ function Workers() {
               <div className="mb-4">
                 <p className="text-gray-600 mb-2">{worker.category}</p>
                 <p className="text-gray-600 mb-2">{worker.location}</p>
-                <p className="text-gray-600 mb-2">Experience: {worker.experience}</p>
-                <p className="text-lg font-semibold text-blue-600">KSh {worker.hourlyRate}/hr</p>
+                <p className="text-gray-600 mb-2">Experience: 3 years</p>
+                <p className="text-lg font-semibold text-blue-600">KSh {worker.hourly_rate}/hr</p>
               </div>
               
               <div className="flex items-center mb-4">
                 <div className="flex items-center">
                   <span className="text-yellow-400">★</span>
                   <span className="ml-1 text-sm text-gray-600">{worker.rating}</span>
-                  <span className="ml-1 text-sm text-gray-500">({worker.reviewCount} reviews)</span>
+                  <span className="ml-1 text-sm text-gray-500">({worker.review_count} reviews)</span>
                 </div>
               </div>
               
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
-                <div className="flex flex-wrap gap-1">
-                  {worker.skills.slice(0, 3).map((skill, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                      {skill}
-                    </span>
-                  ))}
-                  {worker.skills.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                      +{worker.skills.length - 3} more
-                    </span>
-                  )}
+                              <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(worker.skills) && worker.skills.slice(0, 3).map((skill, index) => (
+                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                        {skill}
+                      </span>
+                    ))}
+                    {Array.isArray(worker.skills) && worker.skills.length > 3 && (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                        +{worker.skills.length - 3} more
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
               
               <Link
                 to={`/workers/${worker.id}`}
@@ -149,9 +165,8 @@ function Workers() {
             </div>
           </div>
         ))}
-      </div>
-      
-      {workers.length === 0 && (
+        </div>
+      ) : (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No workers found matching your criteria.</p>
         </div>

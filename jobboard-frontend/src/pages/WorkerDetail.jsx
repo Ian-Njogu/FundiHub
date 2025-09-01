@@ -16,6 +16,7 @@ function WorkerDetail() {
     try {
       setLoading(true)
       const response = await api.get(`/api/v1/workers/${id}/`)
+      console.log('Worker data:', response.data)
       setWorker(response.data)
       setError(null)
     } catch (err) {
@@ -60,17 +61,17 @@ function WorkerDetail() {
         <div className="p-6 border-b">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{worker.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{worker.user?.name || 'Unknown'}</h1>
               <p className="text-lg text-gray-600 mb-2">{worker.category}</p>
               <p className="text-gray-600 mb-2">{worker.location}</p>
               <div className="flex items-center mb-2">
                 <span className="text-yellow-400 text-xl">★</span>
                 <span className="ml-1 text-lg font-semibold">{worker.rating}</span>
-                <span className="ml-1 text-gray-500">({worker.reviewCount} reviews)</span>
+                <span className="ml-1 text-gray-500">({worker.review_count} reviews)</span>
               </div>
             </div>
             <div className="mt-4 md:mt-0 text-right">
-              <div className="text-3xl font-bold text-blue-600 mb-2">KSh {worker.hourlyRate}/hr</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">KSh {worker.hourly_rate}/hr</div>
               <span className={`px-3 py-1 text-sm rounded-full ${
                 worker.available 
                   ? 'bg-green-100 text-green-800' 
@@ -90,7 +91,6 @@ function WorkerDetail() {
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">About</h2>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-700 mb-2"><strong>Experience:</strong> {worker.experience}</p>
                   <p className="text-gray-700 mb-2"><strong>Category:</strong> {worker.category}</p>
                   <p className="text-gray-700"><strong>Location:</strong> {worker.location}</p>
                 </div>
@@ -99,70 +99,82 @@ function WorkerDetail() {
               {/* Skills */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Skills</h2>
-                <div className="flex flex-wrap gap-2">
-                  {worker.skills.map((skill, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+                {worker.skills && Array.isArray(worker.skills) && worker.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {worker.skills.map((skill, index) => (
+                      <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No skills listed yet.</p>
+                )}
               </div>
 
               {/* Portfolio */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Portfolio</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {worker.portfolio.map((item) => (
-                    <div key={item.id} className="border rounded-lg overflow-hidden">
-                      <img 
-                        src={item.image} 
-                        alt={item.title}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="p-4">
-                        <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
-                        <p className="text-gray-600 text-sm">{item.description}</p>
+                {worker.portfolio && Array.isArray(worker.portfolio) && worker.portfolio.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {worker.portfolio.map((item, index) => (
+                      <div key={index} className="border rounded-lg overflow-hidden">
+                        <img 
+                          src={item.image} 
+                          alt={item.title}
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="p-4">
+                          <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
+                          <p className="text-gray-600 text-sm">{item.description}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No portfolio items yet.</p>
+                )}
               </div>
 
               {/* Reviews */}
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Reviews</h2>
-                <div className="space-y-4">
-                  {worker.reviews.map((review) => (
-                    <div key={review.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-gray-900">{review.client}</span>
-                        <div className="flex items-center">
-                          <span className="text-yellow-400">★</span>
-                          <span className="ml-1 text-sm text-gray-600">{review.rating}</span>
+                {worker.reviews && Array.isArray(worker.reviews) && worker.reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {worker.reviews.map((review, index) => (
+                      <div key={index} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium text-gray-900">{review.client}</span>
+                          <div className="flex items-center">
+                            <span className="text-yellow-400">★</span>
+                            <span className="ml-1 text-sm text-gray-600">{review.rating}</span>
+                          </div>
                         </div>
+                        <p className="text-gray-700 mb-2">{review.comment}</p>
+                        <p className="text-sm text-gray-500">{review.date}</p>
                       </div>
-                      <p className="text-gray-700 mb-2">{review.comment}</p>
-                      <p className="text-sm text-gray-500">{review.date}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No reviews yet.</p>
+                )}
               </div>
             </div>
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-gray-50 p-6 rounded-lg sticky top-8 border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Hire {worker.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Hire {worker.user?.name || 'Worker'}</h3>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-2xl font-bold text-blue-600">KSh {worker.hourlyRate}/hr</p>
+                    <p className="text-2xl font-bold text-blue-600">KSh {worker.hourly_rate}/hr</p>
                     <p className="text-sm text-gray-600">Hourly rate</p>
                   </div>
                   
                   <div className="flex items-center">
                     <span className="text-yellow-400">★</span>
                     <span className="ml-1 font-semibold">{worker.rating}</span>
-                    <span className="ml-1 text-gray-600">({worker.reviewCount} reviews)</span>
+                    <span className="ml-1 text-gray-600">({worker.review_count} reviews)</span>
                   </div>
                   
                   <div className="pt-4">

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../config/api'
 
 function Home() {
   const [categories, setCategories] = useState([])
@@ -9,10 +9,26 @@ function Home() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('/api/v1/categories')
+        console.log('Fetching categories from API...')
+        const response = await api.get('/api/v1/workers/categories/')
+        console.log('API response:', response.data)
         setCategories(response.data)
       } catch (error) {
         console.error('Error fetching categories:', error)
+        console.log('Using fallback categories...')
+        // Fallback to hardcoded categories if API fails
+        const fallbackCategories = [
+          { id: 1, name: 'Plumbing', icon: '🔧' },
+          { id: 2, name: 'Cleaning', icon: '🧹' },
+          { id: 3, name: 'Electrical', icon: '⚡' },
+          { id: 4, name: 'Carpentry', icon: '🔨' },
+          { id: 5, name: 'Painting', icon: '🎨' },
+          { id: 6, name: 'Gardening', icon: '🌱' },
+          { id: 7, name: 'Moving', icon: '📦' },
+          { id: 8, name: 'General Labor', icon: '👷' }
+        ]
+        console.log('Setting fallback categories:', fallbackCategories)
+        setCategories(fallbackCategories)
       } finally {
         setLoading(false)
       }
@@ -69,7 +85,7 @@ function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {categories.map((category) => (
+              {Array.isArray(categories) && categories.map((category) => (
                 <Link
                   key={category.id}
                   to={`/workers?category=${category.name}`}

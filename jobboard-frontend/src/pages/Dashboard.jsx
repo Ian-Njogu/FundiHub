@@ -41,15 +41,20 @@ function Dashboard({ user }) {
       setLoading(true)
       if (user.role === 'client') {
         const response = await api.get(`/api/v1/jobs?client_id=${user.id}`)
-        setJobs(response.data)
+        // Handle both array and paginated response formats
+        const jobsData = Array.isArray(response.data) ? response.data : response.data.results || []
+        setJobs(jobsData)
       } else {
         const response = await api.get(`/api/v1/jobs?feed_for_worker_id=${user.id}`)
-        setJobs(response.data)
+        // Handle both array and paginated response formats
+        const jobsData = Array.isArray(response.data) ? response.data : response.data.results || []
+        setJobs(jobsData)
       }
       setError(null)
     } catch (err) {
       setError('Failed to fetch jobs')
       console.error('Error fetching jobs:', err)
+      setJobs([]) // Ensure jobs is always an array
     } finally {
       setLoading(false)
     }
@@ -69,18 +74,24 @@ function Dashboard({ user }) {
   const fetchApplications = async () => {
     try {
       const res = await api.get(`/api/v1/applications?client_id=${user.id}`)
-      setApplications(res.data)
+      // Handle both array and paginated response formats
+      const applicationsData = Array.isArray(res.data) ? res.data : res.data.results || []
+      setApplications(applicationsData)
     } catch (e) {
       console.error('Failed to load applications', e)
+      setApplications([]) // Ensure applications is always an array
     }
   }
 
   const fetchWorkerJobs = async () => {
     try {
       const res = await api.get(`/api/v1/worker/${user.id}/jobs`)
-      setWorkerJobs(res.data)
+      // Handle both array and paginated response formats
+      const workerJobsData = Array.isArray(res.data) ? res.data : res.data.results || []
+      setWorkerJobs(workerJobsData)
     } catch (e) {
       console.error('Failed to load worker jobs', e)
+      setWorkerJobs([]) // Ensure workerJobs is always an array
     }
   }
 
@@ -146,7 +157,7 @@ function Dashboard({ user }) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-              <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{Array.isArray(jobs) ? jobs.length : 0}</p>
             </div>
           </div>
         </div>
@@ -159,7 +170,7 @@ function Dashboard({ user }) {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Active Jobs</p>
               <p className="text-2xl font-bold text-gray-900">
-                {jobs.filter(job => job.status === 'in_progress').length}
+                {Array.isArray(jobs) ? jobs.filter(job => job.status === 'in_progress').length : 0}
               </p>
             </div>
           </div>
@@ -173,7 +184,7 @@ function Dashboard({ user }) {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Completed</p>
               <p className="text-2xl font-bold text-gray-900">
-                {jobs.filter(job => job.status === 'completed').length}
+                {Array.isArray(jobs) ? jobs.filter(job => job.status === 'completed').length : 0}
               </p>
             </div>
           </div>
@@ -213,7 +224,7 @@ function Dashboard({ user }) {
           <h2 className="text-xl font-semibold text-gray-900">Recent Jobs</h2>
         </div>
         
-        {jobs.length === 0 ? (
+        {!jobs || jobs.length === 0 ? (
           <div className="p-6 text-center">
             {user.role === 'client' ? (
               <>
@@ -231,7 +242,7 @@ function Dashboard({ user }) {
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {jobs.map((job) => (
+            {Array.isArray(jobs) && jobs.map((job) => (
               <div key={job.id} className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -300,11 +311,11 @@ function Dashboard({ user }) {
           <div className="p-6 border-b">
             <h2 className="text-xl font-semibold text-gray-900">Applications</h2>
           </div>
-          {applications.length === 0 ? (
+          {!applications || applications.length === 0 ? (
             <div className="p-6 text-gray-500">No applications yet.</div>
           ) : (
             <div className="divide-y divide-gray-50">
-              {applications.map(app => (
+              {Array.isArray(applications) && applications.map(app => (
                 <div key={app.id} className="p-6 flex items-center justify-between">
                   <div>
                     <p className="text-gray-900 font-medium">{app.workerName || `Worker #${app.workerId}`}</p>
@@ -352,11 +363,11 @@ function Dashboard({ user }) {
           <div className="p-6 border-b">
             <h2 className="text-xl font-semibold text-gray-900">My Jobs</h2>
           </div>
-          {workerJobs.length === 0 ? (
+          {!workerJobs || workerJobs.length === 0 ? (
             <div className="p-6 text-gray-500">You have no assigned jobs yet.</div>
           ) : (
             <div className="divide-y divide-gray-50">
-              {workerJobs.map(job => (
+              {Array.isArray(workerJobs) && workerJobs.map(job => (
                 <div key={job.id} className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">

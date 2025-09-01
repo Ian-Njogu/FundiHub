@@ -55,6 +55,17 @@ function Dashboard({ user }) {
     }
   }
 
+  const handleWorkerJobStatusChange = async (jobId, newStatus) => {
+    try {
+      const response = await axios.patch(`/api/v1/jobs/${jobId}`, { status: newStatus })
+      setWorkerJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: response.data.status } : j))
+    } catch (e) {
+      alert('Failed to update status')
+    }
+  }
+
+  
+
   const fetchApplications = async () => {
     try {
       const res = await axios.get(`/api/v1/applications?client_id=${user.id}`)
@@ -253,6 +264,7 @@ function Dashboard({ user }) {
                         <option value="in_progress">In Progress</option>
                         <option value="completed">Completed</option>
                       </select>
+                      
                     </div>
                   ) : (
                     <div className="ml-6 flex flex-col items-end">
@@ -365,7 +377,17 @@ function Dashboard({ user }) {
                       </div>
                     </div>
                     <div className="ml-6 flex flex-col items-end">
-                      <span className="text-sm text-gray-600 mb-2">Status: {job.status}</span>
+                      <span className="text-sm text-gray-600">Status</span>
+                      <select
+                        className="mt-1 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+                        value={job.status}
+                        onChange={e => handleWorkerJobStatusChange(job.id, e.target.value)}
+                      >
+                        <option value="accepted">Accepted</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                      </select>
+                      
                     </div>
                   </div>
                 </div>

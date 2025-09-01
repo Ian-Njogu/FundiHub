@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../config/api'
 
 function Login({ onLogin }) {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
@@ -8,7 +8,7 @@ function Login({ onLogin }) {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post('/api/v1/auth/login', data)
+      const response = await api.post('/api/v1/auth/login', data)
       const { accessToken, user } = response.data
       
       // Store token
@@ -21,7 +21,11 @@ function Login({ onLogin }) {
       navigate('/dashboard')
     } catch (error) {
       console.error('Login error:', error)
-      alert('Login failed. Please check your credentials.')
+      if (error.response?.status === 401) {
+        alert('Invalid credentials. Please check your email and password.')
+      } else {
+        alert('Login failed. Please try again.')
+      }
     }
   }
 

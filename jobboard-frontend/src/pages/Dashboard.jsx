@@ -45,9 +45,8 @@ function Dashboard({ user }) {
         const jobsData = Array.isArray(response.data) ? response.data : response.data.results || []
         setJobs(jobsData)
       } else {
-        // Use the actual logged-in user's ID, but ensure it's a valid worker ID
-        const workerId = user.id && [12, 13, 14, 15, 16, 17, 18].includes(user.id) ? user.id : 12
-        const response = await api.get(`/api/v1/jobs/feed/?feed_for_worker_id=${workerId}`)
+        // Use the actual logged-in user's ID - no more hardcoded IDs!
+        const response = await api.get(`/api/v1/jobs/feed/?feed_for_worker_id=${user.id}`)
         // Handle both array and paginated response formats
         const jobsData = Array.isArray(response.data) ? response.data : response.data.results || []
         setJobs(jobsData)

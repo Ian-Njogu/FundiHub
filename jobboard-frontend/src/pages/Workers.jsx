@@ -115,7 +115,7 @@ function Workers() {
           <div key={worker.id} className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{worker.user?.name || 'Unknown'}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{worker.name || 'Unknown'}</h3>
                 <span className={`px-2 py-1 text-xs rounded-full ${
                   worker.available 
                     ? 'bg-green-100 text-green-800' 
@@ -125,18 +125,27 @@ function Workers() {
                 </span>
               </div>
               
+              {worker.phoneNumber && (
+                <div className="mb-3">
+                  <p className="text-sm text-blue-600 font-medium flex items-center">
+                    <span className="mr-1">📞</span>
+                    {worker.phoneNumber}
+                  </p>
+                </div>
+              )}
+              
               <div className="mb-4">
                 <p className="text-gray-600 mb-2">{worker.category}</p>
                 <p className="text-gray-600 mb-2">{worker.location}</p>
-                <p className="text-gray-600 mb-2">Experience: 3 years</p>
-                <p className="text-lg font-semibold text-blue-600">KSh {worker.hourly_rate}/hr</p>
+                <p className="text-gray-600 mb-2">Experience: {worker.experience}</p>
+                <p className="text-lg font-semibold text-blue-600">KSh {worker.hourlyRate}/hr</p>
               </div>
               
               <div className="flex items-center mb-4">
                 <div className="flex items-center">
                   <span className="text-yellow-400">★</span>
                   <span className="ml-1 text-sm text-gray-600">{worker.rating}</span>
-                  <span className="ml-1 text-sm text-gray-500">({worker.review_count} reviews)</span>
+                  <span className="ml-1 text-sm text-gray-500">({worker.reviewCount} reviews)</span>
                 </div>
               </div>
               

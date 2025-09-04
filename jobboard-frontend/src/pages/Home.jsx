@@ -81,9 +81,9 @@ function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {Array.isArray(categories) && categories.map((category) => (
+              {Array.isArray(categories) && categories.map((category, index) => (
                 <Link
-                  key={category.id}
+                  key={category.id || category.name || index}
                   to={`/workers?category=${category.name}`}
                   className="group block p-6 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors"
                 >

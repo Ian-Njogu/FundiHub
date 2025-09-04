@@ -7,9 +7,11 @@ function Login({ onLogin }) {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
   const navigate = useNavigate()
   const [isSignup, setIsSignup] = useState(false)
+  const [error, setError] = useState(null)
 
   const onSubmit = async (data) => {
     try {
+      setError(null) // Clear any previous errors
       const endpoint = isSignup ? '/api/v1/auth/signup' : '/api/v1/auth/login'
       const response = await api.post(endpoint, data)
       const { accessToken, user } = response.data
@@ -25,16 +27,16 @@ function Login({ onLogin }) {
     } catch (error) {
       console.error(isSignup ? 'Signup error:' : 'Login error:', error)
       if (error.response?.status === 401) {
-        alert('Invalid credentials. Please check your email and password.')
+        setError('Invalid credentials. Please check your email and password.')
       } else if (error.response?.status === 400) {
         const errorDetail = error.response.data.detail
         if (typeof errorDetail === 'string') {
-          alert(errorDetail)
+          setError(errorDetail)
         } else {
-          alert('Please check your input and try again.')
+          setError('Please check your input and try again.')
         }
       } else {
-        alert(isSignup ? 'Signup failed. Please try again.' : 'Login failed. Please try again.')
+        setError(isSignup ? 'Signup failed. Please try again.' : 'Login failed. Please try again.')
       }
     }
   }
@@ -53,6 +55,21 @@ function Login({ onLogin }) {
             {isSignup ? 'Join FundiHub to connect with skilled workers' : 'Connect with skilled workers for your projects'}
           </p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span>{error}</span>
+              <button 
+                onClick={() => setError(null)}
+                className="text-red-500 hover:text-red-700 text-lg font-bold"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
@@ -150,7 +167,10 @@ function Login({ onLogin }) {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setIsSignup(!isSignup)}
+              onClick={() => {
+                setIsSignup(!isSignup)
+                setError(null) // Clear error when switching modes
+              }}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
               {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}

@@ -12,9 +12,10 @@ function WorkerProfile({ user }) {
     category: '',
     location: '',
     hourly_rate: '',
+    bio: '',
     skills: '',
-    portfolio: '',
-    available: true
+    experience_years: 0,
+    is_available: true
   })
   const [isEditing, setIsEditing] = useState(false)
   const navigate = useNavigate()
@@ -46,9 +47,10 @@ function WorkerProfile({ user }) {
             category: profileRes.data.category || '',
             location: profileRes.data.location || '',
             hourly_rate: profileRes.data.hourly_rate || '',
+            bio: profileRes.data.bio || '',
             skills: Array.isArray(profileRes.data.skills) ? profileRes.data.skills.join(', ') : '',
-            portfolio: Array.isArray(profileRes.data.portfolio) ? profileRes.data.portfolio.join(', ') : '',
-            available: profileRes.data.available
+            experience_years: profileRes.data.experience_years || 0,
+            is_available: profileRes.data.is_available
           })
           setIsEditing(true)
         } catch (e) {
@@ -79,10 +81,13 @@ function WorkerProfile({ user }) {
       setError(null)
       
       const payload = {
-        ...profile,
+        category: profile.category,
+        location: profile.location,
+        hourly_rate: parseFloat(profile.hourly_rate),
+        bio: profile.bio || '',
         skills: profile.skills.split(',').map(s => s.trim()).filter(s => s),
-        portfolio: profile.portfolio.split(',').map(s => s.trim()).filter(s => s),
-        hourly_rate: parseFloat(profile.hourly_rate)
+        experience_years: parseInt(profile.experience_years) || 0,
+        is_available: profile.is_available !== undefined ? profile.is_available : true
       }
       
       if (isEditing) {
@@ -202,7 +207,7 @@ function WorkerProfile({ user }) {
             >
               <option value="">Select a category</option>
               {categories.map(category => (
-                <option key={category.id} value={category.id}>
+                <option key={category.name} value={category.name}>
                   {category.name} - {category.description}
                 </option>
               ))}
@@ -259,28 +264,44 @@ function WorkerProfile({ user }) {
             <p className="mt-1 text-sm text-gray-500">Separate multiple skills with commas</p>
           </div>
 
-          {/* Portfolio */}
+          {/* Bio */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Portfolio Links (comma-separated)
+              Bio
             </label>
-            <input
-              type="text"
-              name="portfolio"
-              value={profile.portfolio}
+            <textarea
+              name="bio"
+              value={profile.bio}
               onChange={handleInputChange}
-              placeholder="e.g., https://example.com, https://portfolio.com"
+              rows={3}
+              placeholder="Tell us about your experience and expertise..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
-            <p className="mt-1 text-sm text-gray-500">Separate multiple links with commas</p>
+          </div>
+
+          {/* Experience Years */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Years of Experience
+            </label>
+            <input
+              type="number"
+              name="experience_years"
+              value={profile.experience_years}
+              onChange={handleInputChange}
+              min="0"
+              max="50"
+              placeholder="e.g., 5"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
 
           {/* Available Status */}
           <div className="flex items-center">
             <input
               type="checkbox"
-              name="available"
-              checked={profile.available}
+              name="is_available"
+              checked={profile.is_available}
               onChange={handleInputChange}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />

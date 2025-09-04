@@ -1,10 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
 import api from '../config/api'
 
 function CreateJob({ user }) {
   // useForm manages form state and validation
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
+  const [error, setError] = useState(null)
 
   // React Router hook to programmatically navigate
   const navigate = useNavigate()
@@ -16,6 +18,7 @@ function CreateJob({ user }) {
   // Handle form submission
   const onSubmit = async (data) => {
     try {
+      setError(null) // Clear any previous errors
       // Build job payload
       const jobData = {
         title: data.title,
@@ -36,7 +39,7 @@ function CreateJob({ user }) {
       navigate('/dashboard')
     } catch (error) {
       console.error('Error creating job:', error)
-      alert('Failed to create job. Please try again.')
+      setError('Failed to create job. Please try again.')
     }
   }
 
@@ -69,6 +72,21 @@ function CreateJob({ user }) {
           Describe the work you need done and find the right worker.
         </p>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span>{error}</span>
+            <button 
+              onClick={() => setError(null)}
+              className="text-red-500 hover:text-red-700 text-lg font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Form container */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">

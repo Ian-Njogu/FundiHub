@@ -4,6 +4,18 @@ import axios from 'axios'
 const API_BASE_URL = 'http://localhost:8000'  // Force backend URL
 const USE_REAL_API = true  // Force real API
 
+// Disable MSW explicitly
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(registration => {
+      if (registration.scope.includes('localhost:5173')) {
+        registration.unregister()
+        console.log('MSW service worker unregistered')
+      }
+    })
+  })
+}
+
 // Create axios instance
 const api = axios.create({
   baseURL: USE_REAL_API ? API_BASE_URL : '', // Use empty baseURL for MSW when using mocks

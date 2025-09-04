@@ -342,9 +342,9 @@ function Dashboard({ user }) {
                               message: 'I can help with this job.',
                               quote: job.budget
                             })
-                            alert('Applied to job!')
+                            showMessage('success', 'Applied to job!')
                           } catch (e) {
-                            alert('Failed to apply')
+                            showMessage('error', 'Failed to apply')
                           }
                         }}
                         className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"

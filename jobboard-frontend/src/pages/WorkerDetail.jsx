@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import api from '../config/api'
+import PaymentModal from '../components/PaymentModal'
 
 function WorkerDetail() {
   const { id } = useParams()
@@ -14,6 +15,7 @@ function WorkerDetail() {
   })
   const [submittingReview, setSubmittingReview] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
 
   useEffect(() => {
     fetchWorker()
@@ -309,13 +311,19 @@ function WorkerDetail() {
                     <span className="ml-1 text-gray-600">({worker.reviewCount} reviews)</span>
                   </div>
                   
-                  <div className="pt-4">
+                  <div className="pt-4 space-y-3">
                     <Link
                       to={`/create-job?worker_id=${worker.id}`}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md text-center block transition-colors font-medium"
                     >
                       Hire Now
                     </Link>
+                    <button
+                      onClick={() => setShowPaymentModal(true)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md text-center block transition-colors font-medium"
+                    >
+                      Pay Worker
+                    </button>
                   </div>
                   
                   
@@ -325,6 +333,16 @@ function WorkerDetail() {
           </div>
         </div>
       </div>
+      
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        worker={worker}
+        onSuccess={() => {
+          // Refresh worker data or show success message
+          fetchWorker()
+        }}
+      />
     </div>
   )
 }

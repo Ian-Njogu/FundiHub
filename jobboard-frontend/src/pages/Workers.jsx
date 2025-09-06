@@ -1,5 +1,17 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { 
+  FaPhone, 
+  FaMapMarkerAlt, 
+  FaBriefcase, 
+  FaClock, 
+  FaStar, 
+  FaUser, 
+  FaSpinner, 
+  FaExclamationTriangle,
+  FaEye,
+  FaTools
+} from 'react-icons/fa'
 import api from '../config/api'
 
 function Workers() {
@@ -51,7 +63,12 @@ function Workers() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center">Loading workers...</div>
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <FaSpinner className="text-2xl text-blue-600 animate-spin" />
+          </div>
+          <p className="text-gray-600">Loading workers...</p>
+        </div>
       </div>
     )
   }
@@ -59,7 +76,12 @@ function Workers() {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center text-red-600">{error}</div>
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <FaExclamationTriangle className="text-2xl text-red-600" />
+          </div>
+          <p className="text-red-600">{error}</p>
+        </div>
       </div>
     )
   }
@@ -67,10 +89,17 @@ function Workers() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Find Skilled Workers</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+          <FaUser className="text-blue-600" />
+          <span>Find Skilled Workers</span>
+        </h1>
         
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+            <FaTools className="text-blue-600" />
+            <span>Filter Workers</span>
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -79,7 +108,7 @@ function Workers() {
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Categories</option>
                 <option value="Plumbing">Plumbing</option>
@@ -101,7 +130,7 @@ function Workers() {
                 placeholder="Enter location..."
                 value={filters.location}
                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -112,71 +141,95 @@ function Workers() {
       {Array.isArray(workers) && workers.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {workers.map((worker) => (
-          <div key={worker.id} className="bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{worker.name || 'Unknown'}</h3>
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  worker.available 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {worker.available ? 'Available' : 'Busy'}
-                </span>
-              </div>
-              
-              {worker.phoneNumber && (
-                <div className="mb-3">
-                  <p className="text-sm text-blue-600 font-medium flex items-center">
-                    <span className="mr-1">📞</span>
-                    {worker.phoneNumber}
-                  </p>
+            <div key={worker.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+              <div className="p-6">
+                {/* Header with name and availability */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{worker.name || 'Unknown'}</h3>
+                  <span className={`inline-flex items-center px-3 py-1 text-xs rounded-full border ${
+                    worker.available 
+                      ? 'bg-green-100 text-green-800 border-green-200' 
+                      : 'bg-red-100 text-red-800 border-red-200'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full mr-2 ${
+                      worker.available ? 'bg-green-500' : 'bg-red-500'
+                    }`}></div>
+                    {worker.available ? 'Available' : 'Busy'}
+                  </span>
                 </div>
-              )}
-              
-              <div className="mb-4">
-                <p className="text-gray-600 mb-2">{worker.category}</p>
-                <p className="text-gray-600 mb-2">{worker.location}</p>
-                <p className="text-gray-600 mb-2">Experience: {worker.experience}</p>
-                <p className="text-lg font-semibold text-blue-600">KSh {worker.hourlyRate}/hr</p>
-              </div>
-              
-              <div className="flex items-center mb-4">
-                <div className="flex items-center">
-                  <span className="text-yellow-400">★</span>
-                  <span className="ml-1 text-sm text-gray-600">{worker.rating}</span>
-                  <span className="ml-1 text-sm text-gray-500">({worker.reviewCount} reviews)</span>
+                
+                {/* Contact Info */}
+                {worker.phoneNumber && (
+                  <div className="mb-3">
+                    <p className="text-sm text-blue-600 font-medium flex items-center">
+                      <FaPhone className="mr-2 text-sm" />
+                      {worker.phoneNumber}
+                    </p>
+                  </div>
+                )}
+                
+                {/* Worker Details */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <FaBriefcase className="mr-2 text-gray-400" />
+                    <span>{worker.category}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <FaMapMarkerAlt className="mr-2 text-gray-400" />
+                    <span>{worker.location}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <FaClock className="mr-2 text-gray-400" />
+                    <span>Experience: {worker.experience}</span>
+                  </div>
+                  <div className="text-lg font-semibold text-blue-600">
+                    KSh {worker.hourlyRate}/hr
+                  </div>
                 </div>
-              </div>
-              
-                              <div className="mb-4">
+                
+                {/* Rating */}
+                <div className="flex items-center mb-4">
+                  <div className="flex items-center">
+                    <FaStar className="text-yellow-400 mr-1" />
+                    <span className="text-sm font-medium text-gray-900">{worker.rating}</span>
+                    <span className="ml-1 text-sm text-gray-500">({worker.reviewCount} reviews)</span>
+                  </div>
+                </div>
+                
+                {/* Skills */}
+                <div className="mb-6">
                   <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
                   <div className="flex flex-wrap gap-1">
                     {Array.isArray(worker.skills) && worker.skills.slice(0, 3).map((skill, index) => (
-                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded border border-blue-200">
                         {skill}
                       </span>
                     ))}
                     {Array.isArray(worker.skills) && worker.skills.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded border border-gray-200">
                         +{worker.skills.length - 3} more
                       </span>
                     )}
                   </div>
                 </div>
-              
-              <Link
-                to={`/workers/${worker.id}`}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-center block transition-colors"
-              >
-                View Profile
-              </Link>
+                
+                {/* View Profile Button */}
+                <Link
+                  to={`/workers/${worker.id}`}
+                  className="flex items-center justify-center space-x-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors"
+                >
+                  <FaEye className="text-sm" />
+                  <span>View Profile</span>
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
       ) : (
         <div className="text-center py-12">
+          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <FaUser className="text-2xl text-gray-400" />
+          </div>
           <p className="text-gray-500 text-lg">No workers found matching your criteria.</p>
         </div>
       )}

@@ -1,6 +1,20 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { 
+  FaWrench, 
+  FaUser, 
+  FaEnvelope, 
+  FaLock, 
+  FaEye, 
+  FaEyeSlash,
+  FaUserTie,
+  FaHardHat,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaTimes,
+  FaCheckCircle
+} from 'react-icons/fa'
 import api from '../config/api'
 
 function Login({ onLogin }) {
@@ -8,6 +22,7 @@ function Login({ onLogin }) {
   const navigate = useNavigate()
   const [isSignup, setIsSignup] = useState(false)
   const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const onSubmit = async (data) => {
     try {
@@ -42,14 +57,14 @@ function Login({ onLogin }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-            <span className="text-2xl">🔧</span>
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg">
+            <FaWrench className="text-white text-2xl" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {isSignup ? 'Create Account' : 'Sign in to FundiHub'}
+            {isSignup ? 'Create Account' : 'Welcome to FundiHub'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             {isSignup ? 'Join FundiHub to connect with skilled workers' : 'Connect with skilled workers for your projects'}
@@ -58,25 +73,29 @@ function Login({ onLogin }) {
 
         {/* Error Display */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg shadow-sm">
             <div className="flex items-center justify-between">
-              <span>{error}</span>
+              <div className="flex items-center space-x-2">
+                <FaExclamationTriangle className="text-red-600" />
+                <span className="text-sm font-medium">{error}</span>
+              </div>
               <button 
                 onClick={() => setError(null)}
-                className="text-red-500 hover:text-red-700 text-lg font-bold"
+                className="text-red-400 hover:text-red-600 transition-colors"
               >
-                ×
+                <FaTimes />
               </button>
             </div>
           </div>
         )}
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
             {/* Name field - only show for signup */}
             {isSignup && (
               <div>
-                <label htmlFor="name" className="sr-only">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <FaUser className="inline mr-2 text-blue-600" />
                   Full Name
                 </label>
                 <input
@@ -88,18 +107,22 @@ function Login({ onLogin }) {
                     }
                   })}
                   type="text"
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:z-10 sm:text-sm"
-                  placeholder="Full Name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter your full name"
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                  <p className="mt-1 text-sm text-red-600 flex items-center">
+                    <FaExclamationTriangle className="mr-1" />
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
             )}
             
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <FaEnvelope className="inline mr-2 text-blue-600" />
+                Email Address
               </label>
               <input
                 {...register('email', { 
@@ -110,46 +133,68 @@ function Login({ onLogin }) {
                   }
                 })}
                 type="email"
-                className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:z-10 sm:text-sm ${
-                  isSignup ? 'rounded-none' : 'rounded-t-md'
-                }`}
-                placeholder="Email address"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Enter your email address"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <FaExclamationTriangle className="mr-1" />
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-            <div>
-              <label htmlFor="role" className="sr-only">
-                Role
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                <FaUserTie className="inline mr-2 text-blue-600" />
+                I am a...
               </label>
               <select
                 {...register('role')}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 sm:text-sm"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 defaultValue="client"
               >
-                <option value="client">Client</option>
-                <option value="worker">Worker</option>
+                <option value="client">
+                  <FaUserTie className="mr-2" />
+                  Client (Looking for workers)
+                </option>
+                <option value="worker">
+                  <FaHardHat className="mr-2" />
+                  Worker (Looking for jobs)
+                </option>
               </select>
             </div>
-              <input
-                {...register('password', { 
-                  required: 'Password is required',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters'
-                  }
-                })}
-                type="password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-200 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <FaLock className="inline mr-2 text-blue-600" />
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  {...register('password', { 
+                    required: 'Password is required',
+                    minLength: {
+                      value: 6,
+                      message: 'Password must be at least 6 characters'
+                    }
+                  })}
+                  type={showPassword ? 'text' : 'password'}
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <FaExclamationTriangle className="mr-1" />
+                  {errors.password.message}
+                </p>
               )}
             </div>
           </div>
@@ -158,9 +203,19 @@ function Login({ onLogin }) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              {isSubmitting ? (isSignup ? 'Creating account...' : 'Signing in...') : (isSignup ? 'Create Account' : 'Sign in')}
+              {isSubmitting ? (
+                <>
+                  <FaSpinner className="animate-spin mr-2" />
+                  {isSignup ? 'Creating account...' : 'Signing in...'}
+                </>
+              ) : (
+                <>
+                  {isSignup ? <FaUser className="mr-2" /> : <FaCheckCircle className="mr-2" />}
+                  {isSignup ? 'Create Account' : 'Sign In'}
+                </>
+              )}
             </button>
           </div>
 
@@ -171,7 +226,7 @@ function Login({ onLogin }) {
                 setIsSignup(!isSignup)
                 setError(null) // Clear error when switching modes
               }}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
             >
               {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>
@@ -179,7 +234,8 @@ function Login({ onLogin }) {
 
           {!isSignup && (
             <div className="text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <FaCheckCircle className="inline mr-2 text-blue-600" />
                 Demo credentials: Use any valid email and password
               </p>
             </div>
